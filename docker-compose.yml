@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  pulse-nlp:
+    build: .
+    container_name: pulse-nlp-microservices
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+      - CHROMADB_PERSIST_DIR=/app/data/chromadb
+    env_file:
+      - .env
+    volumes:
+      - ./data/chromadb:/app/data/chromadb
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  chromadb_data:
+    driver: local
+  app_logs:
+    driver: local
